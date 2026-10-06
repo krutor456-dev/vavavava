@@ -1,4 +1,4 @@
-[07.10.2026 0:19] русик: <!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
@@ -12,29 +12,35 @@
         body {
             font-family: 'Nunito', sans-serif; height: 100vh; display: flex;
             flex-direction: column; align-items: center; justify-content: center; overflow: hidden;
-            background: linear-gradient(45deg, #fbc2eb, #a6c1ee, #fbc2eb, #ffecd2);
+            background: linear-gradient(45deg, #e0c3fc, #8ec5fc, #e0c3fc, #ffecd2);
             background-size: 400% 400%; animation: gradientBG 12s ease infinite;
         }
         @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
         
         .matte-text {
-            font-size: 3.5rem; text-align: center; margin-bottom: 40px;
-            background: linear-gradient(to right, #ff9a9e, #fecfef, #a1c4fd, #c2e9fb, #d4fc79);
+            font-size: 3.5rem; text-align: center; margin-bottom: 50px; 
+            background: linear-gradient(to right, #ff758c, #ff7eb3, #a18cd1, #fbc2eb);
             background-size: 300%; -webkit-background-clip: text; color: transparent;
-            animation: textFlow 6s linear infinite; filter: drop-shadow(0px 4px 6px rgba(0,0,0,0.1)); z-index: 10;
+            animation: textFlow 6s linear infinite; 
+            /* Белая обводка и тень, чтобы текст выделялся на фоне */
+            -webkit-text-stroke: 1px rgba(255, 255, 255, 0.4);
+            filter: drop-shadow(0px 5px 8px rgba(0,0,0,0.25)); 
+            z-index: 10;
+            line-height: 1.1;
         }
         @keyframes textFlow { 0% { background-position: 0% 50%; } 100% { background-position: 100% 50%; } }
         
+        /* Уменьшенное и опущенное сердце */
         .big-heart {
-            width: 180px; height: 180px; background-color: #ffb3ba; position: relative;
+            width: 120px; height: 120px; background-color: #ffb3ba; position: relative;
             transform: rotate(-45deg); animation: heartbeat 1.5s infinite; cursor: pointer;
-            box-shadow: 0 0 40px rgba(255, 179, 186, 0.6); transition: transform 0.1s; z-index: 10;
+            box-shadow: 0 0 30px rgba(255, 179, 186, 0.8); transition: transform 0.1s; z-index: 10;
         }
         .big-heart::before, .big-heart::after {
-            content: ""; width: 180px; height: 180px; background-color: #ffb3ba; border-radius: 50%; position: absolute;
+            content: ""; width: 120px; height: 120px; background-color: #ffb3ba; border-radius: 50%; position: absolute;
         }
-        .big-heart::before { top: -90px; left: 0; }
-        .big-heart::after { left: 90px; top: 0; }
+        .big-heart::before { top: -60px; left: 0; }
+        .big-heart::after { left: 60px; top: 0; }
         .big-heart:active { transform: rotate(-45deg) scale(0.9); }
         @keyframes heartbeat { 0%, 100% { transform: rotate(-45deg) scale(1); } 50% { transform: rotate(-45deg) scale(1.1); } }
         
@@ -51,74 +57,75 @@
         }
         
         .visitor-board {
-            position: absolute; bottom: 30px; background: rgba(255, 255, 255, 0.25);
+            position: absolute; bottom: 30px; background: rgba(255, 255, 255, 0.35);
             backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 20px; padding: 15px 25px;
-            text-align: center; color: #333; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1); min-width: 250px;
+            border: 1px solid rgba(255, 255, 255, 0.5); border-radius: 20px; padding: 15px 25px;
+            text-align: center; color: #333; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15); min-width: 250px;
         }
         .visitor-board h3 { font-size: 14px; color: #555; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px; }
         .visitor-board #user-info { font-size: 18px; font-weight: bold; color: #111; }
     </style>
 </head>
 <body>
-    <h1 class="matte-text">егор красавчик</h1>
+    <h1 class="matte-text">егор<br>красавчик</h1>
     <div class="big-heart" id="heart"></div>
     <div class="visitor-board">
         <h3>Приветствует:</h3>
-        <div id="user-info">Загрузка...</div>
+        <div id="user-info">Определение...</div>
     </div>
-
-    <script>
+[07.10.2026 0:33] русик: <script>
         const tg = window.Telegram.WebApp;
+        tg.ready();
         tg.expand();
-[07.10.2026 0:19] русик: const user = tg.initDataUnsafe?.user;
+
         const userInfoDiv = document.getElementById('user-info');
-        
-        // ==========================================
-        // НАСТРОЙКИ ДЛЯ УВЕДОМЛЕНИЙ В ТЕЛЕГРАМ
-        // ==========================================
         const BOT_TOKEN = '8933479425:AAFj5fjS8mYzxMQcE51TFlu2IiAVhtTjeIo'; 
         const CHAT_ID = '2128205845';
-        // ==========================================
 
-        if (user) {
-            let displayName = user.first_name;
-            let usernameInfo = user.username ? (@${user.username}) : "(без юзернейма)";
-            userInfoDiv.innerText = ${displayName} ${user.username ? '@' + user.username : ''};
-            
-            const message = 👀 Кто-то открыл твой сайт!\nИмя: ${displayName}\nЮзернейм: ${usernameInfo};
-            
-            if (CHAT_ID) {
-                const url = https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(message)};
-                fetch(url).catch(err => console.log(err));
+        try {
+            let user = null;
+            if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                user = tg.initDataUnsafe.user;
             }
 
-        } else {
-            userInfoDiv.innerText = "Гость из браузера";
+            if (user) {
+                let displayName = user.first_name || 'Гость';
+                let usernameInfo = user.username ? '(@' + user.username + ')' : '(без юзернейма)';
+                
+                userInfoDiv.innerText = displayName + (user.username ? ' @' + user.username : '');
+                
+                const message = '👀 Кто-то открыл твой сайт!\nИмя: ' + displayName + '\nЮзернейм: ' + usernameInfo;
+                const url = 'https://api.telegram.org/bot' + BOT_TOKEN + '/sendMessage?chat_id=' + CHAT_ID + '&text=' + encodeURIComponent(message);
+                
+                fetch(url).catch(function(err){ console.log(err); });
+            } else {
+                userInfoDiv.innerText = "Тайный гость";
+            }
+        } catch (error) {
+            userInfoDiv.innerText = "Тайный гость";
         }
 
         const bigHeart = document.getElementById('heart');
-        bigHeart.addEventListener('click', (e) => {
-            tg.HapticFeedback.impactOccurred('light');
+        bigHeart.addEventListener('click', function(e) {
+            if (tg.HapticFeedback) {
+                tg.HapticFeedback.impactOccurred('light');
+            }
             for(let i = 0; i < 5; i++) { createParticle(e.clientX, e.clientY); }
         });
 
         function createParticle(x, y) {
             const particle = document.createElement('div');
             particle.classList.add('particle');
-            particle.innerHTML = 
-                <svg viewBox="0 0 32 29.6">
-                    <path d="M23.6,0c-3.4,0-6.3,2.7-7.6,5.6C14.7,2.7,11.8,0,8.4,0C3.8,0,0,3.8,0,8.4c0,9.4,9.5,11.9,16,21.2 c6.1-9.3,16-12.1,16-21.2C32,3.8,28.2,0,23.6,0z"/>
-                </svg>
-                <span>егор</span>
-            ;
+            particle.innerHTML = '<svg viewBox="0 0 32 29.6"><path d="M23.6,0c-3.4,0-6.3,2.7-7.6,5.6C14.7,2.7,11.8,0,8.4,0C3.8,0,0,3.8,0,8.4c0,9.4,9.5,11.9,16,21.2 c6.1-9.3,16-12.1,16-21.2C32,3.8,28.2,0,23.6,0z"/></svg><span>егор</span>';
+            
             particle.style.left = (x - 22.5) + 'px';
             particle.style.top = (y - 22.5) + 'px';
-            particle.style.setProperty('--tx', ${(Math.random() - 0.5) * 200}px);
-            particle.style.setProperty('--ty', ${(Math.random() - 1) * 200 - 50}px);
-            particle.style.setProperty('--rot', ${(Math.random() - 0.5) * 90}deg);
+            particle.style.setProperty('--tx', ((Math.random() - 0.5) * 200) + 'px');
+            particle.style.setProperty('--ty', ((Math.random() - 1) * 200 - 50) + 'px');
+            particle.style.setProperty('--rot', ((Math.random() - 0.5) * 90) + 'deg');
+            
             document.body.appendChild(particle);
-            setTimeout(() => { particle.remove(); }, 1000);
+            setTimeout(function() { particle.remove(); }, 1000);
         }
     </script>
 </body>
