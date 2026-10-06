@@ -1,1 +1,241 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Егор красавчик</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@800&display=swap" rel="stylesheet">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body {
+            font-family: 'Nunito', sans-serif; height: 100vh; display: flex;
+            flex-direction: column; align-items: center; justify-content: center; overflow: hidden;
+            background: linear-gradient(45deg, #e0c3fc, #8ec5fc, #e0c3fc, #ffecd2);
+            background-size: 400% 400%; animation: gradientBG 12s ease infinite;
+        }
+        @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        
+        /* Плавная надпись (теперь с курсором-кнопкой) */
+        .matte-text {
+            text-align: center; margin-bottom: 30px; 
+            font-size: 3.5rem; line-height: 1.15; z-index: 10;
+            cursor: pointer; position: relative;
+        }
+        
+        .matte-text span {
+            display: inline-block;
+            color: #ff758c; 
+            -webkit-text-stroke: 1px rgba(255, 255, 255, 0.5);
+            filter: drop-shadow(0px 4px 6px rgba(0,0,0,0.15));
+            animation: colorWave 4s infinite ease-in-out;
+            animation-delay: var(--d);
+        }
 
+        @keyframes colorWave {
+            0% { color: #ff758c; transform: translateY(0); }
+            25% { color: #a18cd1; }
+            50% { color: #fbc2eb; transform: translateY(-4px); }
+            75% { color: #ff7eb3; }
+            100% { color: #ff758c; transform: translateY(0); }
+        }
+        
+        /* Летающее сердце с крыльями */
+        .heart-container {
+            width: 320px; height: 220px;
+            cursor: pointer; z-index: 10;
+            display: flex; align-items: center; justify-content: center;
+            animation: float 3s ease-in-out infinite;
+            filter: drop-shadow(0px 20px 25px rgba(255, 117, 140, 0.4));
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-18px); }
+        }
+
+        .heart-container svg { width: 100%; height: 100%; transition: transform 0.1s; pointer-events: none; }
+        .heart-container:active svg { transform: scale(0.9); }
+        
+        /* Анимация крыльев */
+        .wing-l {
+            transform-origin: 140px 100px;
+            animation: flapLeft 1.5s ease-in-out infinite;
+        }
+        .wing-r {
+            transform-origin: 210px 100px;
+            animation: flapRight 1.5s ease-in-out infinite;
+        }
+
+        @keyframes flapLeft {
+            0%, 100% { transform: rotate(10deg); } 
+            50% { transform: rotate(-25deg); } 
+        }
+        @keyframes flapRight {
+            0%, 100% { transform: rotate(-10deg); }
+            50% { transform: rotate(25deg); }
+        }
+        
+        /* Вылетающие маленькие сердечки */
+        .particle {
+            position: fixed; width: 48px; height: 48px; pointer-events: none;
+            display: flex; align-items: center; justify-content: center;
+            animation: flyOut 1s ease-out forwards; z-index: 100;
+        }
+        .particle svg { position: absolute; width: 100%; height: 100%; z-index: -1; fill: #ff4d4d; }
+        .particle span { color: #111; font-size: 11px; font-weight: 900; margin-bottom: 5px; }
+        
+        @keyframes flyOut {
+            0% { opacity: 1; transform: translate(0, 0) scale(0.5); }
+            100% { opacity: 0; transform: translate(var(--tx), var(--ty)) scale(1.5) rotate(var(--rot)); }
+        }
+        
+        /* Табличка */
+        .visitor-board {
+            position: absolute; bottom: 30px; background: rgba(255, 255, 255, 0.35);
+            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.5); border-radius: 20px; padding: 15px 25px;
+            text-align: center; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15); min-width: 250px;
+        }
+        .visitor-board h3 { font-size: 15px; color: #8e7cc3; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px; }
+        .visitor-board #user-info { font-size: 19px; font-weight: bold; color: #5f4b8b; }
+    </style>
+</head>
+<body>
+
+    <!-- Скрытый плеер для аудио -->
+    <audio id="bg-music" src="music.mp3" loop preload="auto"></audio>
+
+    <h1 class="matte-text" id="magic-text">
+        <div>
+            <span style="--d: 0s">е</span><span style="--d: 0.15s">г</span><span style="--d: 0.3s">о</span><span style="--d: 0.45s">р</span>
+        </div>
+        <div>
+            <span style="--d: 0.6s">к</span><span style="--d: 0.75s">р</span><span style="--d: 0.9s">а</span><span style="--d: 1.05s">с</span><span style="--d: 1.2s">а</span><span style="--d: 1.35s">в</span><span style="--d: 1.5s">ч</span><span style="--d: 1.65s">и</span><span style="--d: 1.8s">к</span>
+        </div>
+    </h1>
+    
+    <div class="heart-container" id="heart">
+        <svg viewBox="0 0 350 250" xmlns="http://www.w3.org/2000/svg">
+            <g class="wing-l">
+                <path d="M 140 100 C 80 20, 10 40, 25 80 C 5 95, 10 135, 45 130 C 30 155, 60 180, 95 155 C 120 135, 130 110, 140 100 Z" fill="#ffffff" stroke="#111" stroke-width="10" stroke-linejoin="round"/>
+                <path d="M 50 85 C 80 85, 110 95, 130 105" fill="none" stroke="#111" stroke-width="6" stroke-linecap="round"/>
+                <path d="M 60 120 C 90 115, 110 110, 125 110" fill="none" stroke="#111" stroke-width="6" stroke-linecap="round"/>
+            </g>
+            <g class="wing-r">
+                <path d="M 210 100 C 270 20, 340 40, 325 80 C 345 95, 340 135, 305 130 C 320 155, 290 180, 255 155 C 230 135, 220 110, 210 100 Z" fill="#ffffff" stroke="#111" stroke-width="10" stroke-linejoin="round"/>
+                <path d="M 300 85 C 270 85, 240 95, 220 105" fill="none" stroke="#111" stroke-width="6" stroke-linecap="round"/>
+                <path d="M 290 120 C 260 115, 240 110, 225 110" fill="none" stroke="#111" stroke-width="6" stroke-linecap="round"/>
+            </g>
+            <g>
+                <path d="M 175 210 C 175 210, 60 120, 70 60 C 75 20, 130 10, 175 55 C 220 10, 275 20, 280 60 C 290 120, 175 210, 175 210 Z" fill="#ff7eb3" stroke="#111" stroke-width="12" stroke-linejoin="round" stroke-linecap="round"/>
+                <path d="M 100 60 C 100 40, 130 30, 150 45" fill="none" stroke="#ffffff" stroke-width="8" stroke-linecap="round"/>
+            </g>
+        </svg>
+    </div>
+
+    <div class="visitor-board">
+        <h3>ПРИВЕТСТВУЮ ТЕБЯ,</h3>
+        <div id="user-info">Загрузка...</div>
+    </div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.ready();
+        tg.expand();
+
+        // Безопасное получение данных
+        const userInfoDiv = document.getElementById('user-info');
+        const BOT_TOKEN = '8933479425:AAFj5fjS8mYzxMQcE51TFlu2IiAVhtTjeIo'; 
+        const CHAT_ID = '2128205845';
+
+        try {
+            let user = null;
+            if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                user = tg.initDataUnsafe.user;
+            }
+
+            if (user) {
+                let displayName = user.first_name || '';
+                let usernameDisplay = user.username ? '@' + user.username : '';
+                
+                let finalName = displayName;
+                if (usernameDisplay) {
+                    finalName = finalName ? (finalName + ' ' + usernameDisplay) : usernameDisplay;
+                }
+                
+                userInfoDiv.innerText = finalName || 'Гость';
+                
+                const message = '👀 Кто-то открыл твой сайт!\nИмя: ' + (displayName || 'Нет имени') + '\nЮзернейм: ' + (usernameDisplay || 'Без юзернейма');
+                const url = 'https://api.telegram.org/bot' + BOT_TOKEN + '/sendMessage?chat_id=' + CHAT_ID + '&text=' + encodeURIComponent(message);
+                fetch(url).catch(function(){});
+            } else {
+                userInfoDiv.innerText = "Гость";
+            }
+        } catch (e) {
+            userInfoDiv.innerText = "Гость";
+        }
+
+        // ===================================
+        // ЛОГИКА МУЗЫКИ (По клику на текст)
+        // ===================================
+        const bgMusic = document.getElementById('bg-music');
+        const magicText = document.getElementById('magic-text');
+
+        magicText.addEventListener('click', function() {
+            if (bgMusic.paused) {
+                bgMusic.volume = 0.3; // Умеренная громкость 30%
+                bgMusic.play().catch(function(){});
+                
+                // Легкая вибрация телефона для понимания клика
+                if (tg.HapticFeedback) {
+                    try { tg.HapticFeedback.impactOccurred('light'); } catch(err){}
+                }
+            } else {
+                bgMusic.pause();
+            }
+        });
+
+        // ===================================
+        // Вылет сердечек
+        // ===================================
+        const bigHeart = document.getElementById('heart');
+
+        bigHeart.addEventListener('click', function(e) {
+            if (tg.HapticFeedback) {
+                try { tg.HapticFeedback.impactOccurred('light'); } catch(err){}
+            }
+
+            let x = e.clientX;
+            let y = e.clientY;
+            
+            if (!x || !y) {
+                const rect = bigHeart.getBoundingClientRect();
+                x = rect.left + rect.width / 2;
+                y = rect.top + rect.height / 2;
+            }
+
+            for(let i = 0; i < 5; i++) {
+                createParticle(x, y);
+            }
+        });
+
+        function createParticle(x, y) {
+            const particle = document.createElement('div');
+            particle.classList.add('particle');
+            particle.innerHTML = '<svg viewBox="0 0 32 29.6"><path d="M23.6,0c-3.4,0-6.3,2.7-7.6,5.6C14.7,2.7,11.8,0,8.4,0C3.8,0,0,3.8,0,8.4c0,9.4,9.5,11.9,16,21.2 c6.1-9.3,16-12.1,16-21.2C32,3.8,28.2,0,23.6,0z"/></svg><span>егор</span>';
+            
+            particle.style.left = (x - 24) + 'px';
+            particle.style.top = (y - 24) + 'px';
+            particle.style.setProperty('--tx', ((Math.random() - 0.5) * 220) + 'px');
+            particle.style.setProperty('--ty', ((Math.random() - 1) * 200 - 50) + 'px');
+            particle.style.setProperty('--rot', ((Math.random() - 0.5) * 90) + 'deg');
+            
+            document.body.appendChild(particle);
+            
+            setTimeout(function() { particle.remove(); }, 1000);
+        }
+    </script>
+</body>
+</html>
